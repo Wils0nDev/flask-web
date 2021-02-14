@@ -2,13 +2,19 @@ from app import app,login_manager
 from flask import render_template, url_for, redirect
 from flask import request
 from models.esquema import *
+from utils.formvalidate import SignupForm
+
 import flask_login
+
+
 
 
 @app.route('/',methods=['GET', 'POST'])
 def index():
 
+    
     if request.method == 'POST':
+
         user = User.query.filter_by(email=request.form['email']).first()
         print(user)
         if user and user.verify_password(request.form['password']):
@@ -25,13 +31,23 @@ def index():
     return render_template('login.html')
 
 
-@app.route('/register/',methods=['GET'])
-@app.route('/register')
+#ruta de registro
+@app.route('/register/',methods=["GET","POST"])
 def register():
+    form = SignupForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        email = form.email.data
+        password = form.password.data
+        next = request.args.get('next', None)
+        if next:
+            return redirect(next)
+        return redirect(url_for('index'))
+    return render_template('user/register.html', form=form)
 
-    return render_template('user/register.html')
 
-@app.route('/adduser',methods=['POST'])
+#Para agregar usuarios
+@app.route('/adduser',methods=['GET'])
 def adduser():
     if request.method == 'POST':
         admin = User(
@@ -45,10 +61,7 @@ def adduser():
 
     return render_template('user/register.html')
 
-@app.route("/proyect",methods=['GET'])
-@flask_login.login_required
-def proyect():
-    return render_template('app/proyecto.html')
+
 
 @app.route('/logout')
 def logout():

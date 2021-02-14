@@ -9,8 +9,11 @@ db = SQLAlchemy(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = "index"
 
 from controllers.usuario import *
+from controllers.proyects import *
+
 
 #@app.errorhandler(404)
 #def page_not_found(error):
